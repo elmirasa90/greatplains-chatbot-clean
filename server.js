@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -25,7 +26,9 @@ app.post("/chat", async (req, res) => {
 
     const userMessage = req.body.message;
 
-    const context = knowledge.map(item => item.content).join("\n");
+    const context = knowledge
+      .map(item => item.content)
+      .join("\n");
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
@@ -57,6 +60,18 @@ app.post("/chat", async (req, res) => {
 
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+/* SERVE FRONTEND */
+
+app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.resolve("public/index.html"));
+});
+
+/* START SERVER */
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
